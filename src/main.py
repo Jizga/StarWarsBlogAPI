@@ -21,34 +21,39 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
-users = [
-    { 
-     "name": "Vivi", 
-     "last_name": "Vega", 
-     "email": "jizga93@gmail.com",
-     "password": "1234",
-     "favorite_characters": 0, 
-     "favorite_planets": 0
-     },
-    { 
-     "name": "Fernando", 
-     "last_name": "Dominguez", 
-     "email": "f_dominguez@gmail.com",
-     "password": "1234",
-     "favorite_characters": 0, 
-     "favorite_planets": 0
-     },
-     { 
-     "name": "Raquel", 
-     "last_name": "Romero", 
-     "email": "f_dominguez@gmail.com",
-     "password": "1234",
-     "favorite_characters": 0, 
-     "favorite_planets": 0
-     },
-]
 
-
+# characters = [
+#     { 
+#      "id": "1", 
+#      "height": "170", 
+#      "mass": "70",
+#      "hair_color": "red",
+#      "skin_color": "white", 
+#      "eye_color": "red",
+#      "birth_year": "1988-02-01",
+#      "gender": "male",
+#      "created": "1988-02-01",
+#      "edited": "",
+#      "name": "Nol",
+#      "homeword": "",
+#      "url": ""
+#      },
+#     { 
+#      "id": "2", 
+#      "height": "160", 
+#      "mass": "60",
+#      "hair_color": "red",
+#      "skin_color": "white", 
+#      "eye_color": "red",
+#      "birth_year": "1996-04-07",
+#      "gender": "female",
+#      "created": "1988-02-01",
+#      "edited": "",
+#      "name": "Eliff",
+#      "homeword": "",
+#      "url": ""
+#      }
+# ]
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -62,10 +67,45 @@ def sitemap():
 
 @app.route('/user', methods=['GET'])
 def handle_hello():
-    response = jsonify(users)
-    response.status_code = 200 
+    #Unión con la tabla "User" de la BD
+    response = db.session.query(User).all()
+    return jsonify(response), 200
+
+@app.route('/user', methods=['POST'])
+def add_new_user():
     
-    return response
+    request_body = request.json
+   #users.append(request_body) ---> Quiero unirme a la BD no a mi list de aquí
+    
+    return jsonify(users.serialize()), 200
+
+
+@app.route('/user/<int:user_id>', methods=['PUT', 'GET'])
+def get_single_user(user_id):
+   
+    body = request.get_json() #{ 'username': 'new_username'}
+    
+    if request.method == 'PUT':
+        user1 = User.query.get(user_id)
+        user1.username = body.username
+        db.session.commit()
+   
+        return jsonify(user1.serialize()), 200
+         
+    
+    if request.method == 'GET':
+        user1 = User.query.get(user_id)
+        
+        return jsonify(user1.serialize()), 200
+
+    return "Invalid Method", 404
+
+# @app.route('/character', methods=['GET'])
+# def handle_hello():
+#     response = jsonify(characters)
+#     response.status_code = 200 
+    
+#     return response
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
