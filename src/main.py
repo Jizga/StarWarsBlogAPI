@@ -74,17 +74,26 @@ def handle_hello():
 @app.route('/user', methods=['POST'])
 def add_new_user():
     
-    request_body = request.json
-   #users.append(request_body) ---> Quiero unirme a la BD no a mi list de aquí
+    json = request.get_json(force=True)
+
+    if json.get('username') is None:
+        return jsonify({'message': 'Bad request'}), 400
+
+    user = User.create(json['username'])
+
+    return jsonify({'user': user.json() })
     
-    return jsonify(users.serialize()), 200
+   # response = {'message': 'success'}
+    #return jsonify(response)
+
+
 
 
 @app.route('/user/<int:user_id>', methods=['PUT', 'GET'])
 def get_single_user(user_id):
    
     body = request.get_json() #{ 'username': 'new_username'}
-    
+    #Modifica el nombre del usuario:
     if request.method == 'PUT':
         user1 = User.query.get(user_id)
         user1.username = body.username
