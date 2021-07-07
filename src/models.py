@@ -1,13 +1,14 @@
-from flask_sqlalchemy import SQLAlchemy, DateTime, ForeignKey
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from sqlalchemy import ForeignKey
 
 #En este achivo se crean los modelos de las tablas de la BD
-# Esto también se puede hacer directamente en MySQL Workbench (???)
 
 db = SQLAlchemy()
 
 class User(db.Model):
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     name = db.Column(db.String(250), nullable=False)
     last_name = db.Column(db.String(250))
     email = db.Column(db.String(250), nullable=False, unique=True)
@@ -44,9 +45,9 @@ class Character(db.Model):
     gender  = db.Column(db.String(45))
     created = db.Column(db.DateTime)
     edited = db.Column(db.DateTime)
-    name  = db.Column(db.String(250)
-    homeword = db.Column(db.String(250)
-    url = db.Column(db.String(250)
+    name  = db.Column(db.String(250))
+    homeword = db.Column(db.String(250))
+    url = db.Column(db.String(250))
 
     # tell python how to print the class object on the console
     def __repr__(self):
