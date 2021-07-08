@@ -20,7 +20,7 @@ class User(db.Model):
 
     # tell python how to print the class object on the console
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %r>' % self.name
 
      # tell python how convert the class object into a dictionary ready to jsonify
     def serialize(self):

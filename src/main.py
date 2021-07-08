@@ -68,46 +68,66 @@ def sitemap():
 @app.route('/user', methods=['GET'])
 def handle_hello():
     #Unión con la tabla "User" de la BD
-    response = db.session.query(User).all()
-    return jsonify(response), 200
+    
+    #.filter_by(deleted_at=None) --->>> siginifica que coge aquellos que no estén borrados
+    
+    list_obj = []
+
+    response_list = User.query.all() ## ---->> Esto da una lista de usarios y se quiere un solo usario para ser serializado
+    
+    for obj in response_list:
+        list_obj.append(obj.serialize())
+    
+    return jsonify(list_obj), 200
 
 @app.route('/user', methods=['POST'])
 def add_new_user():
     
     json = request.get_json(force=True)
 
-    if json.get('username') is None:
-        return jsonify({'message': 'Bad request'}), 400
-
-    user = User.create(json['username'])
-
-    return jsonify({'user': user.json() })
+    # if json.get('username') is None:
+    #     return jsonify({'message': 'Bad request'}), 400
     
-   # response = {'message': 'success'}
-    #return jsonify(response)
 
+    user = User(
+            name = User.name ,
+            last_name = User.last_name,
+            email= User.email,
+            password = User.password
+            )
+    
+    db.session.add(user)
+    db.session.commit()
 
-
-
-@app.route('/user/<int:user_id>', methods=['PUT', 'GET'])
-def get_single_user(user_id):
+    return jsonify(user.serialize()), 201
+    
    
-    body = request.get_json() #{ 'username': 'new_username'}
-    #Modifica el nombre del usuario:
-    if request.method == 'PUT':
-        user1 = User.query.get(user_id)
-        user1.username = body.username
-        db.session.commit()
+    
+    # response = {'message': 'success'}
+    # return jsonify(response)
+
+
+
+
+@app.route('/user/<int:id>', methods=[ 'GET'])
+def get_single_user(id):
    
-        return jsonify(user1.serialize()), 200
+    # body = request.get_json() #{ 'username': 'new_username'}
+    # #Modifica el nombre del usuario:
+    # if request.method == 'PUT':
+    #     user1 = User.query.get(id)
+    #     user1.username = body.username
+    #     db.session.commit()
+   
+    #     return jsonify(user1.serialize()), 200
          
     
-    if request.method == 'GET':
-        user1 = User.query.get(user_id)
+    # if request.method == 'GET':
+        user1 = User.query.get(id)
         
         return jsonify(user1.serialize()), 200
 
-    return "Invalid Method", 404
+    #return "Invalid Method", 404
 
 # @app.route('/character', methods=['GET'])
 # def handle_hello():
