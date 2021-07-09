@@ -4,6 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 ##Aquí se realiza la unión con la BD
 import os
 from flask import Flask, request, jsonify, url_for
+import json
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
@@ -22,39 +23,6 @@ CORS(app)
 setup_admin(app)
 
 
-# characters = [
-#     { 
-#      "id": "1", 
-#      "height": "170", 
-#      "mass": "70",
-#      "hair_color": "red",
-#      "skin_color": "white", 
-#      "eye_color": "red",
-#      "birth_year": "1988-02-01",
-#      "gender": "male",
-#      "created": "1988-02-01",
-#      "edited": "",
-#      "name": "Nol",
-#      "homeword": "",
-#      "url": ""
-#      },
-#     { 
-#      "id": "2", 
-#      "height": "160", 
-#      "mass": "60",
-#      "hair_color": "red",
-#      "skin_color": "white", 
-#      "eye_color": "red",
-#      "birth_year": "1996-04-07",
-#      "gender": "female",
-#      "created": "1988-02-01",
-#      "edited": "",
-#      "name": "Eliff",
-#      "homeword": "",
-#      "url": ""
-#      }
-# ]
-
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
@@ -67,12 +35,12 @@ def sitemap():
 
 @app.route('/user', methods=['GET'])
 def handle_hello():
-    #Unión con la tabla "User" de la BD
     
     #.filter_by(deleted_at=None) --->>> siginifica que coge aquellos que no estén borrados
     
     list_obj = []
-
+    
+    #Unión con la tabla "User" de la BD
     response_list = User.query.all() ## ---->> Esto da una lista de usarios y se quiere un solo usario para ser serializado
     
     for obj in response_list:
@@ -83,28 +51,36 @@ def handle_hello():
 @app.route('/user', methods=['POST'])
 def add_new_user():
     
-    json = request.get_json(force=True)
-
-    # if json.get('username') is None:
-    #     return jsonify({'message': 'Bad request'}), 400
+    # ---- Lo añade a la base de datos pero con los valores vacíos
+    # json = request.get_json(force=True)
+    # user = User(
+    #         name = User.name ,
+    #         last_name = User.last_name,
+    #         email= User.email,
+    #         password = User.password
+    #         )
     
-
-    user = User(
-            name = User.name ,
-            last_name = User.last_name,
-            email= User.email,
-            password = User.password
-            )
-    
+    # -------- Otra forma:
+    body_request = request.get_json(force=True)
+    print('?????? --- ', body_request) #---->>> Saca una lista con el/los usarios de Postman
+    user = User(**body_request)
     db.session.add(user)
     db.session.commit()
 
+    ## error -->> " TypeError: DefaultMeta object argument after ** must be a mapping, not list "
     return jsonify(user.serialize()), 201
-    
    
+    ## ---- INTENTO DE ARREGLO DEL ERROR DEL MAPPING:
+    #body_request = request.get_json(force=True) #---->>> Saca una lista con el/los usarios de Postman
     
-    # response = {'message': 'success'}
-    # return jsonify(response)
+    # user = None
+    # for req in body_request:
+    #     user = User(**req)
+    #     print('USUARIO ÚNICO AÑADIDO ---- ', user)
+    # db.session.add(user)
+    # db.session.commit()
+    # ### error ---->>> "TypeError: Incompatible collection type: str is not list-like"
+    # return jsonify(user.serialize()), 201
 
 
 
