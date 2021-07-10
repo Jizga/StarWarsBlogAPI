@@ -34,7 +34,7 @@ def sitemap():
     return generate_sitemap(app)
 
 @app.route('/user', methods=['GET'])
-def handle_hello():
+def get_users():
     
     #.filter_by(deleted_at=None) --->>> siginifica que coge aquellos que no estén borrados
     
@@ -73,10 +73,9 @@ def add_new_user():
 
 @app.route('/people', methods=['POST'])
 def add_new_character():
-    #Datos procedentes del body del POST de Postman
+
     body_request = request.get_json()
     
-    #Unión con las columnas de la BD, los datos son del body de Postman
     name_request = body_request.get("name", None)
     race_request = body_request.get("race", None)
     age_request = body_request.get("age", None)
@@ -98,6 +97,17 @@ def add_new_character():
 
     return jsonify(character.serialize()), 201
 
+
+@app.route('/people', methods=['GET'])
+def get_characters():
+        
+    characters_list = []
+    response_list = Characters.query.all()
+    
+    for character in response_list:
+        characters_list.append(character.serialize())
+    
+    return jsonify(characters_list), 200
 
 
 # this only runs if `$ python src/main.py` is executed
