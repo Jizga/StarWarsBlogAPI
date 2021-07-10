@@ -234,7 +234,13 @@ def favorite_planets_list():
             return "There was a problem deleting this character...", 400
         
         
-
+@app.route('/users/favorites/<int:user_id>', methods=['GET'])
+def get_user_favourites(user_id):
+    body = request.get_json()
+    user_selected = User.query.get(user_id)
+    favourite_list = user_selected["favorite_characters_fk"].append(user_selected["favorite_planets_fk"])
+    
+    return jsonify(favourite_list.serialize()), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
