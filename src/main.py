@@ -71,34 +71,34 @@ def add_new_user():
 
     return jsonify(user.serialize()), 201
 
-
-
-@app.route('/user/<int:id>', methods=[ 'GET'])
-def get_single_user(id):
-   
-    # body = request.get_json() #{ 'username': 'new_username'}
-    # #Modifica el nombre del usuario:
-    # if request.method == 'PUT':
-    #     user1 = User.query.get(id)
-    #     user1.username = body.username
-    #     db.session.commit()
-   
-    #     return jsonify(user1.serialize()), 200
-         
+@app.route('/people', methods=['POST'])
+def add_new_character():
+    #Datos procedentes del body del POST de Postman
+    body_request = request.get_json()
     
-    # if request.method == 'GET':
-        user1 = User.query.get(id)
-        
-        return jsonify(user1.serialize()), 200
-
-    #return "Invalid Method", 404
-
-# @app.route('/character', methods=['GET'])
-# def handle_hello():
-#     response = jsonify(characters)
-#     response.status_code = 200 
+    #Unión con las columnas de la BD, los datos son del body de Postman
+    name_request = body_request.get("name", None)
+    race_request = body_request.get("race", None)
+    age_request = body_request.get("age", None)
+    birth_request = body_request.get("birth", None)
+    sex_request = body_request.get("sex", None)
+    country_request = body_request.get("country", None)
     
-#     return response
+    character = Characters(
+        name = name_request,
+        race = race_request,
+        age = age_request,
+        birth = birth_request,
+        sex = sex_request,
+        country = country_request
+    )
+    
+    db.session.add(character)
+    db.session.commit()
+
+    return jsonify(character.serialize()), 201
+
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

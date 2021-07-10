@@ -12,8 +12,6 @@ class User(db.Model):
     email = db.Column(db.String(250), nullable=False, unique=True)
     password = db.Column(db.String(250), nullable=False)
     favorite_characters_fk = db.relationship('FavoriteCharacters', lazy=True)
-    # favorite_characters = db.Column(db.Integer, db.ForeignKey('favoriteCharacters.id'))
-    # favorite_planets = db.Column(db.Integer, db.ForeignKey('favoritePlanets.id'))
 
     # tell python how to print the class object on the console
     def __repr__(self):
@@ -40,7 +38,6 @@ class Characters(db.Model):
     sex = db.Column(db.String(250))
     country = db.Column(db.String(250))
     favorite_characters_fk2 = db.relationship('FavoriteCharacters', lazy=True)
-    #favorite_planets_id = db.Column(db.Integer, db.ForeignKey('favoritePlanets.id'))
 
     def __repr__(self):
         return '<Characters %r>' % self.name
@@ -54,7 +51,7 @@ class Characters(db.Model):
             "birth": self.birth,
             "sex": self.sex,
             "country": self.country,
-            "favorite_characters_fk2": list(map(lambda x: x.serialize(), self.favorite_characters_fk))
+            "favorite_characters_fk2": list(map(lambda x: x.serialize(), self.favorite_characters_fk2))
         }
 
 class Planets(db.Model):
