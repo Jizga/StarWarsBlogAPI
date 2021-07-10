@@ -2,21 +2,18 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import ForeignKey
 
-#En este achivo se crean los modelos de las tablas de la BD
-
 db = SQLAlchemy()
 
 class User(db.Model):
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
-    last_name = db.Column(db.String(250))
+    last_name = db.Column(db.String(250), nullable=False)
     email = db.Column(db.String(250), nullable=False, unique=True)
     password = db.Column(db.String(250), nullable=False)
-
-    favorite_characters = db.relationship('FavoriteCharacters', backref='User', lazy=True)
-
-    favorite_planets = db.relationship('FavoritePlanets', backref='User', lazy=True)
+    favorite_characters_fk = db.relationship('FavoriteCharacters', lazy=True)
+    # favorite_characters = db.Column(db.Integer, db.ForeignKey('favoriteCharacters.id'))
+    # favorite_planets = db.Column(db.Integer, db.ForeignKey('favoritePlanets.id'))
 
     # tell python how to print the class object on the console
     def __repr__(self):
@@ -27,53 +24,42 @@ class User(db.Model):
         return {
             "id": self.id,
             "name": self.name,
+            "email": self.email,
             "last_name": self.last_name,
-            "email": self.email
+            "favorite_characters_fk": list(map(lambda x: x.serialize(), self.favorite_characters_fk))
             # do not serialize the password, its a security breach
         }
+        
+class Characters(db.Model):
 
-
-class Character(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
-    height = db.Column(db.Integer)
-    mass = db.Column(db.Integer)
-    hair_color = db.Column(db.String(45))
-    skin_color = db.Column(db.String(45))
-    eye_color = db.Column(db.String(45))
-    birth_year = db.Column(db.DateTime)
-    gender  = db.Column(db.String(45))
-    created = db.Column(db.DateTime)
-    edited = db.Column(db.DateTime)
+    id = db.Column(db.Integer, primary_key=True)
     name  = db.Column(db.String(250))
-    homeword = db.Column(db.String(250))
-    url = db.Column(db.String(250))
+    race = db.Column(db.String(250))
+    age = db.Column(db.Integer)
+    birth = db.Column(db.String(250))
+    sex = db.Column(db.String(250))
+    country = db.Column(db.String(250))
+    favorite_characters_fk2 = db.relationship('FavoriteCharacters', lazy=True)
+    #favorite_planets_id = db.Column(db.Integer, db.ForeignKey('favoritePlanets.id'))
 
-    # tell python how to print the class object on the console
     def __repr__(self):
-        return '<Character %r>' % self.name
+        return '<Characters %r>' % self.name
 
-    # tell python how convert the class object into a dictionary ready to jsonify
     def serialize(self):
         return {
             "id": self.id,
-            "height": self.height,
-            "mass": self.mass,
-            "hair_color": self.hair_color,
-            "skin_color": self.skin_color,
-            "eye_color": self.eye_color,
-            "birth_year": self.birth_year,
-            "gender": self.gender,
-            "created": self.created,
-            "edited": self.edited,
-            "name": self.name,
-            "homeword": self.homeword,
-            "url": self.url
+            "name" : self.name,
+            "race": self.race,
+            "age": self.age,
+            "birth": self.birth,
+            "sex": self.sex,
+            "country": self.country,
+            "favorite_characters_fk2": list(map(lambda x: x.serialize(), self.favorite_characters_fk))
         }
 
-class Planet(db.Model):
+class Planets(db.Model):
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    id = db.Column(db.Integer, primary_key=True)
     diameter = db.Column(db.Integer)
     rotation_planet = db.Column(db.Integer)
     orbital_period = db.Column(db.Integer)
@@ -85,12 +71,11 @@ class Planet(db.Model):
     created = db.Column(db.DateTime)
     name  = db.Column(db.String(250))
     url = db.Column(db.String(250))
+    #favorite_planets_id = db.Column(db.Integer, db.ForeignKey('favoritePlanets.id'))
 
-    # tell python how to print the class object on the console
     def __repr__(self):
-        return '<Planet %r>' % self.name
+        return '<Planets %r>' % self.name
 
-    # tell python how convert the class object into a dictionary ready to jsonify
     def serialize(self):
         return {
             "id": self.id,
@@ -111,22 +96,21 @@ class FavoriteCharacters(db.Model):
 
     __tablename__ = 'favoriteCharacters'
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    character_id = db.Column(db.Integer, db.ForeignKey('characters.id'))
+    
+    #character_id = db.relationship('Character', lazy=True)
+    
+    def __repr__(self):
+        return '<FavoriteCharacters %r>' % self.name
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    character_id = db.Column(db.Integer, db.ForeignKey('character.id'), nullable=False)
-
-    # tell python how to print the class object on the console
-    #def __repr__(self):
-        #return '<FavoriteCharacters %r>' % self.name
-
-    # tell python how convert the class object into a dictionary ready to jsonify
     def serialize(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "character_id": self.character_id
+            "character_id": self.character_id,
+            #"user_id": list(map(lambda x: x.serialize(), self.user_id))
         }
 
 class FavoritePlanets(db.Model):
@@ -134,21 +118,15 @@ class FavoritePlanets(db.Model):
     __tablename__ = 'favoritePlanets'
 
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
-    
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    #user_id = db.relationship('User', lazy=True)
+    #planet_id = db.relationship('Planets', lazy=True)
 
-    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'), nullable=False)
+    def __repr__(self):
+        return '<FavoritePlanets %r>' % self.name
 
-
-    # tell python how to print the class object on the console
-    # def __repr__(self):
-    #     return '<FavoritePlanets %r>' % self.name
-
-    # tell python how convert the class object into a dictionary ready to jsonify
     def serialize(self):
         return {
             "id": self.id,
-            "user_id": self.user_id,
-            "planet_id": self.planet_id
+            #"user_id": list(map(lambda x: x.serialize(), self.user_id))
         }
 

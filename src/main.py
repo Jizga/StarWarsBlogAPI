@@ -11,7 +11,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User
-from models import Character, Planet, FavoriteCharacters, FavoritePlanets
+from models import Planets, Characters, FavoriteCharacters, FavoritePlanets
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -50,38 +50,26 @@ def handle_hello():
 
 @app.route('/user', methods=['POST'])
 def add_new_user():
+    #Datos procedentes del body del POST de Postman
+    body_request = request.get_json()
     
-    # ---- Lo añade a la base de datos pero con los valores vacíos
-    # json = request.get_json(force=True)
-    # user = User(
-    #         name = User.name ,
-    #         last_name = User.last_name,
-    #         email= User.email,
-    #         password = User.password
-    #         )
+    #Unión con las columnas de la BD, los datos son del body de Postman
+    name_request = body_request.get("name", None)
+    last_name_request = body_request.get("last_name", None)
+    email_request = body_request.get("email", None)
+    password_request = body_request.get("password", None)
     
-    # -------- Otra forma:
-    body_request = request.get_json(force=True)
-    print('?????? --- ', body_request) #---->>> Saca una lista con el/los usarios de Postman
-    user = User(**body_request)
+    user = User(
+        name = name_request,
+        email = email_request,
+        last_name = last_name_request,
+        password = password_request,
+    )
+    
     db.session.add(user)
     db.session.commit()
 
-    ## error -->> " TypeError: DefaultMeta object argument after ** must be a mapping, not list "
     return jsonify(user.serialize()), 201
-   
-    ## ---- INTENTO DE ARREGLO DEL ERROR DEL MAPPING:
-    #body_request = request.get_json(force=True) #---->>> Saca una lista con el/los usarios de Postman
-    
-    # user = None
-    # for req in body_request:
-    #     user = User(**req)
-    #     print('USUARIO ÚNICO AÑADIDO ---- ', user)
-    # db.session.add(user)
-    # db.session.commit()
-    # ### error ---->>> "TypeError: Incompatible collection type: str is not list-like"
-    # return jsonify(user.serialize()), 201
-
 
 
 
