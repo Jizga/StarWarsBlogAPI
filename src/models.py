@@ -57,18 +57,13 @@ class Characters(db.Model):
 class Planets(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
+    name  = db.Column(db.String(250))
     diameter = db.Column(db.Integer)
     rotation_planet = db.Column(db.Integer)
     orbital_period = db.Column(db.Integer)
     gravity = db.Column(db.Integer)
     population = db.Column(db.Integer)
-    climate = db.Column(db.String(45))
-    terrain  = db.Column(db.String(45))
-    surface_water = db.Column(db.Integer)
-    created = db.Column(db.DateTime)
-    name  = db.Column(db.String(250))
-    url = db.Column(db.String(250))
-    #favorite_planets_id = db.Column(db.Integer, db.ForeignKey('favoritePlanets.id'))
+   
 
     def __repr__(self):
         return '<Planets %r>' % self.name
@@ -81,12 +76,7 @@ class Planets(db.Model):
             "orbital_period": self.orbital_period,
             "gravity": self.gravity,
             "population": self.population,
-            "climate": self.climate,
-            "terrain": self.terrain,
-            "surface_water": self.surface_water,
-            "created": self.created,
-            "name": self.name,
-            "url": self.url
+            "name": self.name
         }
 
 class FavoriteCharacters(db.Model):

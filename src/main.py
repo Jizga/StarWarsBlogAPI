@@ -59,17 +59,17 @@ def add_new_user():
     email_request = body_request.get("email", None)
     password_request = body_request.get("password", None)
     
-    user = User(
+    new_user = User(
         name = name_request,
         email = email_request,
         last_name = last_name_request,
         password = password_request,
     )
     
-    db.session.add(user)
+    db.session.add(new_user)
     db.session.commit()
 
-    return jsonify(user.serialize()), 201
+    return jsonify(new_user.serialize()), 201
 
 @app.route('/people', methods=['POST'])
 def add_new_character():
@@ -83,7 +83,7 @@ def add_new_character():
     sex_request = body_request.get("sex", None)
     country_request = body_request.get("country", None)
     
-    character = Characters(
+    new_character = Characters(
         name = name_request,
         race = race_request,
         age = age_request,
@@ -92,10 +92,10 @@ def add_new_character():
         country = country_request
     )
     
-    db.session.add(character)
+    db.session.add(new_character)
     db.session.commit()
 
-    return jsonify(character.serialize()), 201
+    return jsonify(new_character.serialize()), 201
 
 
 @app.route('/people', methods=['GET'])
@@ -108,6 +108,44 @@ def get_characters():
         characters_list.append(character.serialize())
     
     return jsonify(characters_list), 200
+
+
+@app.route('/planets', methods=['POST'])
+def add_new_planet():
+
+    body_request = request.get_json()
+    
+    name_request = body_request.get("name", None)
+    diameter_request = body_request.get("diameter", None)
+    rotation_planet_request = body_request.get("rotationPlanet", None)
+    orbital_period_request = body_request.get("orbitalPeriod", None)
+    gravity_request = body_request.get("gravity", None)
+    population_request = body_request.get("population", None)
+    
+    new_planet = Planets(
+        name = name_request,
+        diameter = diameter_request,
+        rotation_planet = rotation_planet_request,
+        orbital_period = orbital_period_request,
+        gravity = gravity_request,
+        population = population_request
+    )
+    
+    db.session.add(new_planet)
+    db.session.commit()
+
+    return jsonify(new_planet.serialize()), 201
+
+@app.route('/planets', methods=['GET'])
+def get_planets():
+        
+    planets_list = []
+    response_list = Planets.query.all()
+    
+    for planet in response_list:
+        planets_list.append(planet.serialize())
+    
+    return jsonify(planets_list), 200
 
 
 # this only runs if `$ python src/main.py` is executed
