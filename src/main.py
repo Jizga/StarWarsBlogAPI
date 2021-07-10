@@ -203,6 +203,7 @@ def favorite_characters_list():
 
 @app.route('/favorite/planet', methods = ['POST', 'DELETE'])
 def favorite_planets_list():
+    # La API no tiene autenticación de usuario, asi que no puedo hacerlo pasando por la url el id del usuario...
     body_request = request.get_json()
     favourite_list = []
     
