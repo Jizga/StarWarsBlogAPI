@@ -233,14 +233,52 @@ def favorite_planets_list():
         except:
             return "There was a problem deleting this character...", 400
         
-        
+
 @app.route('/users/favorites/<int:user_id>', methods=['GET'])
-def get_user_favourites(user_id):
-    body = request.get_json()
-    user_selected = User.query.get(user_id)
-    favourite_list = user_selected["favorite_characters_fk"].append(user_selected["favorite_planets_fk"])
+def get_user_favourite(user_id):
     
-    return jsonify(favourite_list.serialize()), 200
+    user_favourite_planets = []
+    user_favourite_characters = []
+    
+    favourite_planets_list = FavoritePlanets.query.filter_by(user_id = user_id).all()
+    favourite_characters_list = FavoriteCharacters.query.filter_by(user_id = user_id).all()
+    
+    for fa_planet in favourite_planets_list:
+        user_favourite_planets.append(fa_planet.serialize())
+    
+    for fa_character in favourite_characters_list:
+        user_favourite_characters.append(fa_character.serialize())
+    
+    favorites = {
+        "characters": user_favourite_characters,
+        "planets" : user_favourite_planets
+    }
+    
+    
+    return jsonify(favorites), 200
+
+
+@app.route('/users/favorites/characters/<int:user_id>', methods=['GET'])
+def get_user_favourite_characters(user_id):
+    
+    user_favourite_characters = []
+    favourite_characters_list = FavoriteCharacters.query.filter_by(user_id = user_id).all()
+    
+    for fa_character in favourite_characters_list:
+        user_favourite_characters.append(fa_character.serialize())
+    
+    return jsonify(user_favourite_characters), 200
+
+@app.route('/users/favorites/planets/<int:user_id>', methods=['GET'])
+def get_user_favourite_planets(user_id):
+    
+    user_favourite_planets = []
+    favourite_planets_list = FavoritePlanets.query.filter_by(user_id = user_id).all()
+    
+    for fa_planet in favourite_planets_list:
+        user_favourite_planets.append(fa_planet.serialize())
+    
+    return jsonify(user_favourite_planets), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
