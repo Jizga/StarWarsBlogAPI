@@ -33,7 +33,7 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/user', methods=['GET'])
+@app.route('/users', methods=['GET'])
 def get_users():
     
     #.filter_by(deleted_at=None) --->>> siginifica que coge aquellos que no estén borrados
@@ -48,7 +48,7 @@ def get_users():
     
     return jsonify(list_obj), 200
 
-@app.route('/user', methods=['POST'])
+@app.route('/users', methods=['POST'])
 def add_new_user():
     #Datos procedentes del body del POST de Postman
     body_request = request.get_json()
@@ -146,6 +146,27 @@ def get_planets():
         planets_list.append(planet.serialize())
     
     return jsonify(planets_list), 200
+
+@app.route('/people/<int:character_id>', methods=['GET'])
+def get_single_character(character_id):
+    body = request.get_json()
+    character_selected = Characters.query.get(character_id)
+    return jsonify(character_selected.serialize()), 200
+
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def get_single_planet(planet_id):
+    body = request.get_json()
+    planet_selected = Planets.query.get(planet_id)
+    return jsonify(planet_selected.serialize()), 200
+
+@app.route('/users/<int:user_id>', methods=['GET'])
+def get_single_user(user_id):
+    body = request.get_json()
+    user_selected = User.query.get(user_id)
+    return jsonify(user_selected.serialize()), 200
+    
+    
+        
 
 
 # this only runs if `$ python src/main.py` is executed
