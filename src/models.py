@@ -12,6 +12,7 @@ class User(db.Model):
     email = db.Column(db.String(250), nullable=False, unique=True)
     password = db.Column(db.String(250), nullable=False)
     favorite_characters_fk = db.relationship('FavoriteCharacters', lazy=True)
+    favorite_planets_fk = db.relationship('FavoritePlanets', lazy=True)
 
     # tell python how to print the class object on the console
     def __repr__(self):
@@ -24,7 +25,8 @@ class User(db.Model):
             "name": self.name,
             "email": self.email,
             "last_name": self.last_name,
-            "favorite_characters_fk": list(map(lambda x: x.serialize(), self.favorite_characters_fk))
+            "favorite_characters_fk": list(map(lambda x: x.serialize(), self.favorite_characters_fk)),
+            "favorite_planets_fk": list(map(lambda x: x.serialize(), self.favorite_planets_fk))
             # do not serialize the password, its a security breach
         }
         
@@ -63,6 +65,7 @@ class Planets(db.Model):
     orbital_period = db.Column(db.Integer)
     gravity = db.Column(db.Integer)
     population = db.Column(db.Integer)
+    favorite_planets_fk2 = db.relationship('FavoritePlanets', lazy=True)
    
 
     def __repr__(self):
@@ -76,7 +79,8 @@ class Planets(db.Model):
             "orbital_period": self.orbital_period,
             "gravity": self.gravity,
             "population": self.population,
-            "name": self.name
+            "name": self.name,
+            "favorite_planets_fk2": list(map(lambda x: x.serialize(), self.favorite_planets_fk2))
         }
 
 class FavoriteCharacters(db.Model):
@@ -90,13 +94,13 @@ class FavoriteCharacters(db.Model):
     #character_id = db.relationship('Character', lazy=True)
     
     def __repr__(self):
-        return '<FavoriteCharacters %r>' % self.name
+        return '<FavoriteCharacters %r>' % self.id
 
     def serialize(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "character_id": self.character_id,
+            "character_id": self.character_id
             #"user_id": list(map(lambda x: x.serialize(), self.user_id))
         }
 
@@ -105,15 +109,16 @@ class FavoritePlanets(db.Model):
     __tablename__ = 'favoritePlanets'
 
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
-    #user_id = db.relationship('User', lazy=True)
-    #planet_id = db.relationship('Planets', lazy=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
 
     def __repr__(self):
-        return '<FavoritePlanets %r>' % self.name
+        return '<FavoritePlanets %r>' % self.id
 
     def serialize(self):
         return {
             "id": self.id,
-            #"user_id": list(map(lambda x: x.serialize(), self.user_id))
+            "user_id": self.user_id,
+            "planet_id": self.planet_id
         }
 
