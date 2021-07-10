@@ -165,11 +165,10 @@ def get_single_user(user_id):
     user_selected = User.query.get(user_id)
     return jsonify(user_selected.serialize()), 200
     
-@app.route('/favorite/people/<int:character_id>', methods = ['POST', 'DELETE'])
-def favorite_characters_list(character_id):
+@app.route('/favorite/people', methods = ['POST', 'DELETE'])
+def favorite_characters_list():
     
     body_request = request.get_json()
-    favourite_list = []
     
     if request.method == 'POST':
         user_id_request = body_request.get("user_id", None)
@@ -186,18 +185,24 @@ def favorite_characters_list(character_id):
         return jsonify(favourite_list.serialize()), 201
     
     if request.method == 'DELETE':
-        #character_selected = FavoriteCharacters.query.get(character_id)
+        # Datos necesarios para encontrar la lista de fovaritos para borrar
+        user_id_request = body_request.get("user_id", None)
+        character_id_request = body_request.get("character_id", None)
         
-        for character_selected in favourite_list:
-            favourite_list.remove(character_selected)   
+        # Lista encontrada, saca la primera coincidencia
+        favourite_list_to_delete = FavoriteCharacters.query.filter_by(user_id = user_id_request, character_id = character_id_request).first_or_404()
+
+        try:
+            db.session.delete(favourite_list_to_delete)
+            db.session.commit()
+            return jsonify({"msg":"Deleted successfully"}), 200
+            
+        except:
+            return "There was a problem deleting this character...", 400
         
-        return jsonify(favourite_list), 200
 
-    return jsonify(favourite_list), 200
-
-@app.route('/favorite/planet/<int:planet_id>', methods = ['POST', 'DELETE'])
-def favorite_planets_list(planet_id):
-    
+@app.route('/favorite/planet', methods = ['POST', 'DELETE'])
+def favorite_planets_list():
     body_request = request.get_json()
     favourite_list = []
     
@@ -209,21 +214,24 @@ def favorite_planets_list(planet_id):
             user_id = user_id_request,
             planet_id = planet_id_request
         )
-        
+
         db.session.add(favourite_list)
         db.session.commit()
-
         return jsonify(favourite_list.serialize()), 201
     
     if request.method == 'DELETE':
-        #planet_selected = FavoritePlanets.query.get(planet_id)
+        user_id_request = body_request.get("user_id", None)
+        planet_id_request = body_request.get("planet_id", None)
         
-        for planet_selected in favourite_list:
-            favourite_list.remove(planet_selected)   
-        
-        return jsonify(favourite_list), 200
+        favourite_list_to_delete = FavoritePlanets.query.filter_by(user_id = user_id_request, planet_id = planet_id_request).first_or_404()
 
-    return jsonify(favourite_list), 200
+        try:
+            db.session.delete(favourite_list_to_delete)
+            db.session.commit()
+            return jsonify({"msg":"Deleted successfully"}), 200
+            
+        except:
+            return "There was a problem deleting this character...", 400
         
         
 
